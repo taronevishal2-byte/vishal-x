@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VISHAL X Dashboard</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root{
+      --primary:#6f2b7c;
+      --primary-2:#9654a5;
+      --accent:#f18ca4;
+      --green:#24a954;
+      --bg:#f6f6f8;
+      --card:#ffffff;
+      --text:#252525;
+      --muted:#777;
+      --border:#dddddd;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .header{
+      position:sticky;
+      top:0;
+      z-index:20;
+      min-height:120px;
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:16px;
+      padding:16px 20px;
+      background:white;
+      box-shadow:0 3px 9px rgba(0,0,0,.18);
+    }
+
+    .menu-btn,
+    .home-btn{
+      border:0;
+      background:transparent;
+      font-size:36px;
+      cursor:pointer;
+    }
+
+    .brand{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      text-align:left;
+    }
+
+    .brand-logo{
+      width:72px;
+      height:72px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,var(--primary-2),var(--primary));
+      color:white;
+      font-size:30px;
+      font-weight:800;
+      letter-spacing:1px;
+    }
+
+    .brand-name{
+      color:var(--primary);
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:2px;
+    }
+
+    .brand-tagline{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:3px;
+    }
+
+    .sidebar{
+      position:fixed;
+      top:0;
+      bottom:0;
+      left:0;
+      z-index:40;
+      width:280px;
+      padding:24px 18px;
+      background:white;
+      box-shadow:4px 0 14px rgba(0,0,0,.2);
+      transform:translateX(-105%);
+      transition:.25s ease;
+    }
+
+    .sidebar.open{ transform:translateX(0); }
+
+    .sidebar-title{
+      color:var(--primary);
+      font-size:26px;
+      font-weight:800;
+      margin-bottom:20px;
+    }
+
+    .sidebar a{
+      display:block;
+      padding:14px 10px;
+      border-bottom:1px solid #eee;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      z-index:30;
+      display:none;
+      background:rgba(0,0,0,.35);
+    }
+
+    .overlay.show{ display:block; }
+
+    .content{
+      width:min(760px,100%);
+      margin:auto;
+      padding:22px 18px 80px;
+    }
+
+    .welcome-card{
+      background:linear-gradient(135deg,#7a3286,#a458a9);
+      color:white;
+      border-radius:14px;
+      padding:24px;
+      margin-bottom:22px;
+      box-shadow:0 8px 20px rgba(111,43,124,.18);
+    }
+
+    .welcome-card h1{
+      margin:0 0 8px;
+      font-size:30px;
+    }
+
+    .welcome-card p{
+      margin:0;
+      opacity:.9;
+    }
+
+    .info-card,
+    .shopping-card,
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      margin-bottom:22px;
+      overflow:hidden;
+    }
+
+    .card-title{
+      padding:16px 20px;
+      background:#ececec;
+      font-size:24px;
+      font-weight:700;
+    }
+
+    .card-body{
+      padding:22px;
+    }
+
+    .info-grid{
+      display:grid;
+      grid-template-columns:170px 20px 1fr;
+      gap:16px 8px;
+      font-size:18px;
+    }
+
+    .status-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+      margin-top:22px;
+    }
+
+    .status-box{
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:16px;
+      background:#fafafa;
+    }
+
+    .status-box strong{
+      display:block;
+      margin-bottom:8px;
+      color:var(--primary);
+    }
+
+    .pending{
+      color:#c53b3b;
+      font-weight:700;
+    }
+
+    .verified{
+      color:var(--green);
+      font-weight:700;
+    }
+
+    .order-choice{
+      display:grid;
+      gap:12px;
+      margin-bottom:22px;
+      font-size:18px;
+      font-weight:700;
+    }
+
+    input[type="radio"]{
+      width:20px;
+      height:20px;
+      vertical-align:middle;
+      margin-right:8px;
+    }
+
+    .downline-box{
+      display:none;
+      margin-bottom:22px;
+    }
+
+    .downline-box.show{ display:block; }
+
+    .inline{
+      display:flex;
+      gap:10px;
+      margin-top:8px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:170px 20px 1fr;
+      align-items:center;
+      gap:20px 10px;
+      font-size:18px;
+    }
+
+    input,
+    select{
+      width:100%;
+      min-height:52px;
+      border:1px solid #bbb;
+      border-radius:7px;
+      padding:10px 12px;
+      font-size:17px;
+      background:white;
+    }
+
+    .secondary-btn{
+      border:1px solid #bbb;
+      border-radius:7px;
+      padding:0 14px;
+      background:#efefef;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+
+    .add-btn{
+      margin-top:24px;
+      border:0;
+      border-radius:8px;
+      padding:14px 28px;
+      background:var(--green);
+      color:white;
+      font-size:18px;
+      cursor:pointer;
+    }
+
+    .order-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .order-item{
+      border:1px solid var(--border);
+      border-radius:9px;
+      padding:14px;
+      background:#fafafa;
+      line-height:1.6;
+    }
+
+    .empty{
+      color:var(--muted);
+    }
+
+    .quick-links{
+      position:fixed;
+      right:0;
+      top:48%;
+      z-index:15;
+      border:0;
+      background:var(--primary);
+      color:white;
+      padding:16px 11px;
+      writing-mode:vertical-rl;
+      transform:rotate(180deg);
+      cursor:pointer;
+    }
+
+    @media(max-width:600px){
+      .header{
+        min-height:100px;
+        padding:12px;
+      }
+
+      .brand-logo{
+        width:58px;
+        height:58px;
+        font-size:24px;
+      }
+
+      .brand-name{
+        font-size:22px;
+      }
+
+      .brand-tagline{
+        font-size:10px;
+      }
+
+      .menu-btn,
+      .home-btn{
+        font-size:30px;
+      }
+
+      .info-grid,
+      .form-grid{
+        grid-template-columns:135px 15px 1fr;
+        font-size:15px;
+      }
+
+      .status-grid{
+        grid-template-columns:1fr;
+      }
+
+      .card-body{
+        padding:16px;
+      }
+
+      .inline{
+        flex-direction:column;
+      }
+
+      .secondary-btn{
+        min-height:48px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+
+    <div class="brand">
+      <div class="brand-logo">VX</div>
+      <div>
+        <div class="brand-name">VISHAL X</div>
+        <div class="brand-tagline">Grow with your own identity</div>
+      </div>
+    </div>
+
+    <button class="home-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Home">⌂</button>
+  </header>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-title">VISHAL X</div>
+    <a href="#profile">Profile</a>
+    <a href="#shopping">Start Shopping</a>
+    <a href="#orders">Orders</a>
+    <a href="#support">Support</a>
+  </aside>
+
+  <div class="overlay" id="overlay"></div>
+
+  <main class="content">
+    <section class="welcome-card">
+      <h1>Welcome, VISHAL X</h1>
+      <p>Your personal distributor dashboard</p>
+    </section>
+
+    <section class="info-card" id="profile">
+      <div class="card-title">My Quick Info</div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div>Distributor ID</div><div>:</div><div>4189173873</div>
+          <div>Name</div><div>:</div><div>VISHAL X</div>
+          <div>Date of Joining</div><div>:</div><div>25 Jul 2026</div>
+          <div>Rank</div><div>:</div><div>Distributor</div>
+          <div>Team</div><div>:</div><div>Branch 2</div>
+        </div>
+
+        <div class="status-grid">
+          <div class="status-box">
+            <strong>KYC Status</strong>
+            <span class="pending">Pending</span>
+          </div>
+
+          <div class="status-box">
+            <strong>Bank Status</strong>
+            <span class="pending">Pending</span>
+          </div>
+
+          <div class="status-box">
+            <strong>PAN Status</strong>
+            <span class="pending">Pending</span>
+          </div>
+
+          <div class="status-box">
+            <strong>Profile Status</strong>
+            <span class="verified">Active</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="shopping-card" id="shopping">
+      <div class="card-title">Start Shopping</div>
+
+      <form class="card-body" id="orderForm">
+        <div class="order-choice">
+          <label>
+            <input type="radio" name="orderFor" value="self" checked>
+            Place Order for Self
+          </label>
+
+          <label>
+            <input type="radio" name="orderFor" value="downline">
+            Place Order for Downline
+          </label>
+        </div>
+
+        <div class="downline-box" id="downlineBox">
+          <label for="downlineId">Downline ID</label>
+          <div class="inline">
+            <input id="downlineId" type="text" placeholder="Enter Downline ID">
+            <button type="button" class="secondary-btn" id="detailsBtn">Get Details</button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>Name</div>
+          <div>:</div>
+          <div>VISHAL X</div>
+
+          <label for="productType">Product Type</label>
+          <div>:</div>
+          <select id="productType">
+            <option value="Starter">Starter</option>
+            <option value="Premium">Premium</option>
+            <option value="Business">Business</option>
+          </select>
+
+          <label for="amount">Total Amount (₹)</label>
+          <div>:</div>
+          <input id="amount" type="number" min="1" placeholder="Enter amount">
+        </div>
+
+        <button class="add-btn" type="submit">Add Order</button>
+      </form>
+    </section>
+
+    <section class="summary-card" id="orders">
+      <div class="card-title">My Order Summary</div>
+      <div class="card-body">
+        <div class="order-list" id="orderList">
+          <p class="empty">No demo orders added yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-card" id="support">
+      <div class="card-title">Support</div>
+      <div class="card-body">
+        <p>This is a demo dashboard. Real payment, KYC, login and database are not connected.</p>
+      </div>
+    </section>
+  </main>
+
+  <button class="quick-links" id="quickLinksBtn">QUICK LINKS</button>
+
+  <script>
+    const menuBtn = document.getElementById("menuBtn");
+    const quickLinksBtn = document.getElementById("quickLinksBtn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const downlineBox = document.getElementById("downlineBox");
+    const downlineId = document.getElementById("downlineId");
+    const detailsBtn = document.getElementById("detailsBtn");
+    const orderForm = document.getElementById("orderForm");
+    const orderList = document.getElementById("orderList");
+
+    function openMenu(){
+      sidebar.classList.add("open");
+      overlay.classList.add("show");
+    }
+
+    function closeMenu(){
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    }
+
+    menuBtn.addEventListener("click", openMenu);
+    quickLinksBtn.addEventListener("click", openMenu);
+    overlay.addEventListener("click", closeMenu);
+
+    document.querySelectorAll(".sidebar a").forEach(link => {
+      link.addEventListener("click", closeMenu);
+    });
+
+    document.querySelectorAll('input[name="orderFor"]').forEach(radio => {
+      radio.addEventListener("change", () => {
+        const selected = document.querySelector('input[name="orderFor"]:checked').value;
+        downlineBox.classList.toggle("show", selected === "downline");
+      });
+    });
+
+    detailsBtn.addEventListener("click", () => {
+      const id = downlineId.value.trim();
+
+      if(!id){
+        alert("Please enter a Downline ID.");
+        return;
+      }
+
+      alert("Demo details found for ID: " + id);
+    });
+
+    orderForm.addEventListener("submit", event => {
+      event.preventDefault();
+
+      const orderFor = document.querySelector('input[name="orderFor"]:checked').value;
+      const product = document.getElementById("productType").value;
+      const amount = document.getElementById("amount").value.trim();
+
+      if(!amount || Number(amount) <= 0){
+        alert("Please enter a valid amount.");
+        return;
+      }
+
+      if(orderFor === "downline" && !downlineId.value.trim()){
+        alert("Please enter the Downline ID.");
+        return;
+      }
+
+      const empty = orderList.querySelector(".empty");
+      if(empty) empty.remove();
+
+      const target = orderFor === "self"
+        ? "Self"
+        : "Downline " + downlineId.value.trim();
+
+      const item = document.createElement("div");
+      item.className = "order-item";
+      item.innerHTML =
+        "<strong>Product:</strong> " + product + "<br>" +
+        "<strong>Order For:</strong> " + target + "<br>" +
+        "<strong>Amount:</strong> ₹" + Number(amount).toLocaleString("en-IN");
+
+      orderList.prepend(item);
+
+      document.getElementById("amount").value = "";
+      downlineId.value = "";
+
+      alert("Demo order added successfully.");
+    });
+  </script>
+</body>
+</html>
